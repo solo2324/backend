@@ -4,6 +4,21 @@ import joblib
 import numpy as np
 
 app = FastAPI(title="Breast Cancer Prediction API")
+from fastapi.middleware.cors import CORSMiddleware
+
+origins = [
+    "https://frontend-lk5q.vercel.app",  # your frontend URL
+    "http://localhost:3000"               # optional for local testing
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 # Load models
 logistic_model = joblib.load("logistic_model.joblib")
