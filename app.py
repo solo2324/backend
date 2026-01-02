@@ -1,14 +1,15 @@
 from fastapi import FastAPI
-from pydantic import BaseModel
-import joblib
-import numpy as np
-
-app = FastAPI(title="Breast Cancer Prediction API")
 from fastapi.middleware.cors import CORSMiddleware
+import joblib
+from pydantic import BaseModel
 
+# Initialize FastAPI app
+app = FastAPI(title="Breast Cancer Prediction API")
+
+# CORS settings to allow frontend requests
 origins = [
-    "https://frontend-lk5q.vercel.app",  # your frontend URL
-    "http://localhost:3000"               # optional for local testing
+    "https://frontend-lk5q.vercel.app",
+    "http://localhost:3000"
 ]
 
 app.add_middleware(
@@ -19,8 +20,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-# Load models
+# Load pre-trained models
 logistic_model = joblib.load("logistic_model.joblib")
 tree_model = joblib.load("decision_tree_model.joblib")
 
@@ -28,22 +28,19 @@ tree_model = joblib.load("decision_tree_model.joblib")
 class InputData(BaseModel):
     features: list[float]
 
+# Root endpoint for quick test
 @app.get("/")
-def home():
-    return {"message": "ML API is running"}
+def root():
+    return {"message": "Breast Cancer Prediction API is running"}
 
+# Logistic Regression prediction
 @app.post("/predict/logistic")
 def predict_logistic(data: InputData):
-    prediction = logistic_model.predict([data.features])
-    return {
-        "model": "Logistic Regression",
-        "prediction": int(prediction[0])
-    }
+    prediction = logistic_model.predict([data.features])[0]
+    return {"model": "Logistic Regression", "prediction": int(prediction)}
 
+# Decision Tree prediction
 @app.post("/predict/tree")
 def predict_tree(data: InputData):
-    prediction = tree_model.predict([data.features])
-    return {
-        "model": "Decision Tree",
-        "prediction": int(prediction[0])
-    }
+    prediction = tree_model.predict([data.features])[0]
+    return {"model": "Decision Tree", "prediction": int(prediction)}
